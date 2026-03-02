@@ -1,0 +1,67 @@
+Project PDB_team_project {
+  database_type: 'MySQL'
+  Note: 'ERD Proyek Pemrosesan Data Besar - Analisis Buku & Review'
+}
+
+// 1. TABEL PENULIS
+Table tbl_authors {
+  author_id int [pk, increment]
+  author_name varchar [not null]
+  author_profile varchar
+  author_biography text
+}
+
+// 2. TABEL PENERBIT
+Table tbl_publishers {
+  publisher_id int [pk, increment]
+  publisher_name varchar [not null]
+  url_publisher varchar
+}
+
+// 3. TABEL PENGGUNA
+Table tbl_users {
+  user_id int [pk, increment]
+  username varchar [not null]
+  gender char(1)
+  date_of_birth date
+  city varchar
+}
+
+// 4. TABEL BUKU
+Table tbl_books {
+  book_id int [pk, increment]
+  isbn varchar [note: 'Non-unique due to dummy data']
+  title varchar [not null]
+  category varchar
+  author_id int
+  publisher_id int
+  description text
+  pages int
+  language varchar
+  price decimal(15,2)
+  publish_date date
+  cover_book varchar
+  url_book varchar
+}
+
+// 5. TABEL REVIEW (FACT)
+Table tbl_reviews {
+  review_id int [pk, increment]
+  book_id int [not null]
+  user_id int [not null]
+  rating int
+  review_date date
+}
+
+// RELASI (Cardinality)
+// One Author -> Many Books
+Ref: tbl_authors.author_id < tbl_books.author_id [delete: set null]
+
+// One Publisher -> Many Books
+Ref: tbl_publishers.publisher_id < tbl_books.publisher_id [delete: set null]
+
+// One Book -> Many Reviews
+Ref: tbl_books.book_id < tbl_reviews.book_id [delete: cascade]
+
+// One User -> Many Reviews
+Ref: tbl_users.user_id < tbl_reviews.user_id [delete: cascade]
