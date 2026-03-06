@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Natalinda">
+
+<title>Preprocessing dan EDA</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Preprocessing dan EDA  Data Novel dan Buku_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Preprocessing dan EDA  Data Novel dan Buku_files/libs/quarto-html/quarto.js" type="module"></script>
+<script src="Preprocessing dan EDA  Data Novel dan Buku_files/libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="Preprocessing dan EDA  Data Novel dan Buku_files/libs/quarto-html/popper.min.js"></script>
+<script src="Preprocessing dan EDA  Data Novel dan Buku_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Preprocessing dan EDA  Data Novel dan Buku_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Preprocessing dan EDA  Data Novel dan Buku_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Preprocessing dan EDA  Data Novel dan Buku_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Preprocessing dan EDA  Data Novel dan Buku_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Preprocessing dan EDA  Data Novel dan Buku_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Preprocessing dan EDA  Data Novel dan Buku_files/libs/bootstrap/bootstrap-bb462d781dde1847d9e3ccf7736099dd.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent quarto-light">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Preprocessing dan EDA</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Natalinda </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="preprocessing-eda" class="level2">
+<h2 class="anchored" data-anchor-id="preprocessing-eda">Preprocessing &amp; EDA</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DBI)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'DBI' was built under R version 4.5.2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RMariaDB)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'RMariaDB' was built under R version 4.5.2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>con <span class="ot">&lt;-</span> <span class="fu">dbConnect</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  RMariaDB<span class="sc">::</span><span class="fu">MariaDB</span>(),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">dbname =</span> <span class="st">"db_books"</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">host =</span> <span class="st">"127.0.0.1"</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">port =</span> <span class="dv">3307</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">user =</span> <span class="st">"root"</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">password =</span> <span class="st">""</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>novel <span class="ot">&lt;-</span> <span class="fu">dbReadTable</span>(con, <span class="st">"novel_rawdata"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(novel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           author                                              author_profile
+1      Boy Candra     https://cdn.gramedia.com/uploads/authors/27oa2az9av.jpg
+2   Kahlil Gibran https://cdn.gramedia.com/uploads/authors/Kahlil_Ghibran.jpg
+3       Puthut Ea    https://cdn.gramedia.com/uploads/authors/Puthut-EA-7.jpg
+4     Sujiwo Tejo    https://cdn.gramedia.com/uploads/authors/Sujiwo_Tejo.jpg
+5    Rick Riordan     https://cdn.gramedia.com/uploads/authors/n08iz4uatu.jpg
+6 Keigo Higashino     https://cdn.gramedia.com/uploads/authors/zh9s9ns0oa.jpg
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   author_biography
+1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 Boy Candra adalah seorang laki-laki kelahiran Sumatera Barat, 21 November 1989. penulis Setelah Hujan Reda ini dulunya sangat aktif berorganisasi. Salah satu organisasi yang dia ikuti adalah Organisasi Komunikasi dan Radio. Ia memang sudah rutin menulis di blog nya yaitu rasalelaki.blogspot.com. Laki-laki yang mulai menulis sejak tahun 2011 ini tidak hanya suka menuliskan cerita-cerita romansa, ia juga suka menuliskan puisi. Penulis Cerita yang Telah Usai ini memang sudah menyukai puisi sejak duduk di bangku Sekolah Dasar. Sejak mulai aktif menulis di tahun 2011, ia melewati banyak sekali rintangan untuk sampai titik ini. Sejak awal, dia selalu ditolak oleh para penerbit buku. Namun, meskipun selalu ditolak oleh penerbit, Ia tidak pantang menyerah. Sampai akhirnya, pada tahun 2013, bukunya yang berjudul Origami Hati berhasil diterbitkan.
+2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             Lahir di Basyari, Lebanon, 6 Januari 1883 dari keluarga Katolik Maronit. Kahlil Gibran dikenal sebagai sastrawan yang beraliran romantik. Syair-Syair karyanya mencerminkan perpaduan antara budaya timur dan barat yang merupakan latar belakang kehidupannya. Pada tahun 1918, Kahlil Gibran meluncurkan karya pertamanya dalam bahasa Inggris, The Madman, His Parables and Poems. Pada tahun 1926 Kahlil Gibran menyelesaikan Sand and Foam, dan Jesus the Son of Man pada tahun 1928. Ia juga membacakan naskah drama tulisannya, Lazarus pada tanggal 6 Januari 1929. Setelah itu Gibran menyelesaikan The Earth Gods pada tahun 1931. Karyanya yang lain The Wanderer, yang selama ini ada di tangan Marry (wanitanya), diterbitkan tanpa nama pada tahun 1932, setelah kematiannya. Juga tulisannya yang lain The Garden of the Propeth, Pada 10 April 1931 Kahlil Gibran akhirnya meninggal dunia di Boston Amerika Serikat akibat digerogoti sirosis hati dan tuberkulosis.
+3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Puthut EA lahir di Rembang, Jawa Tengah, 28 Maret 1977. Ia adalah sastrawan sekaligus peneliti berkebangsaan Indonesia. Sejak SMP sampai awal kuliah, ia rajin menulis geguritan (puisi di dalam bahasa Jawa) di majalah Panjebar Semangat dan Jayabaya.
+4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       Dikenal sebagai seorang budayawan yang lama berkecimpung dalam hal menulis, melukis, musik, bahkan dalang, Sujiwo Tejo merupakan pria kelahiran Jember, 31 Agustus 1962. Lugas dalam berkata-kata, ia pun sempat menjadi seorang wartawan di harian Kompas.
+5                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  Richard Russell Riordan Jr. is an American author, best known for writing the Percy Jackson &amp; the Olympians series. Riordan's books have been translated into forty-two languages and sold more than thirty million copies in the United States.
+6 Saat ini, penggemar dari karya Keigo Higashino semakin bertambah. Bukan tanpa alasan, namun memang perkembangan dunia novel bisa dikatakan cukup pesat dan bukan hanya novel karya penulis Indonesia saja yang digemari oleh banyak pembaca, melainkan novel dari penulis luar negeri pun juga digemari oleh banyak pembaca. Selain itu, tidak hanya penulis dari wilayah Eropa saja yang memiliki banyak peminatnya, tetapi karya-karya novel dari penulis benua Asia pun juga banyak diminati. Dari sekian banyak penulis novel dari benua Asia, salah satu negara yang memiliki penulis novel terkenal dan karya-karyanya sudah diterjemahkan ke banyak bahasa tentu saja adalah Jepang. Benar sekali, di Jepang ada banyak penulis novel yang namanya cukup dikenal sampai Indonesia, salah satunya adalah Keigo Higashino. Karyanya sudah sangat banyak dan beberapa sudah diterjemahkan ke dalam bahasa Indonesia. Hampir setiap novel dari Keigo Higashino ini mengisahkan tentang suatu peristiwa yang masih belum ditemukan jalan keluarnya. Jadi, bisa dibilang kalau karya dari Keigo Higashino ini seperti misteri-misteri gitu. Selain cerita novelnya yang biasanya berupa cerita misteri, beberapa karyanya juga dikhususkan untuk 17 tahun ke atas. Jadi, harus bijak dalam mencari dan membaca novel-novel Keigo Higashino, ya. Nah, sebelum membaca novel-novel Keigo Higashino, maka tak ada salahnya kalau kita mengetahui biografi singkat dari Keigo Higashino. Tidak hanya membahas tentang biografinya saja, nih, tapi di sini akan diberikan sedikit “bocoran” sinopsis dari beberapa karyanya yang sudah diterjemahkan. Jadi, biar nggak penasaran dan semakin yakin untuk membaca novel-novelnya Higashino, maka langsung saja kita bahas ulasannya, ya. Keigo Higashino merupakan penulis dari Jepang yang sudah menghasilkan banyak karya dan beberapa karyanya sudah mulai dikenal oleh banyak orang di dunia, termasuk dikenal di Indonesia. Karya novelnya ini sangat lebih sering bertemakan misteri. Keigo Higashino lahir pada tanggal 4 Februari 1958. Selain karyanya dikenal oleh banyak orang di dunia, ternyata karya dari Keigo Higashino juga mendapatkan penghargaan. Selain itu, beberapa karya lainnya juga sudah diadaptasi ke film dan juga serial tv. Banyaknya penghargaan dan karyanya yang sudah diterjemahkan ke banyak bahasa, membuat namanya sudah dikenal di benua Asia. Tidak hanya dikenal di Indonesia saja, tetapi karya dari Keigo Higashino ini juga dikenal di negara China, salah satunya pada karyanya yang berjudul Tersangka X. Selain itu, salah satu karyanya juga sudah ada yang diterjemahkan ke 6 bahasa, salah satunya adalah Salvation of a Saint. Selain orang-orang biasa yang membaca novel dari Keigo Higashino, ternyata para akademisi dari berbagai negara Asia juga melakukan penelitian pada karya Keigo Higashino. Maka dari itu, kita banyak juga menemukan makalah ilmiah dan tesis yang menggunakan karya Keigo Higashino sebagai objeknya. Contoh negara yang beberapa akademisinya memakai karya Keigo Higashino sebagai objek, seperti Indonesia, China, Malaysia, dan Taiwan. Cerita yang dihadirkan setiap novel Keigo Higashino ini sangat dikenal dengan kisah misterinya. Kisah-kisah itu juga didukung dengan tokoh-tokoh yang mendukung dan pastinya alur-alur yang mendukung juga. Keigo Higashino pun juga menghadirkan tokoh-tokohnya yang mendalam. Selain kemampuan dalam membangun karakter tokoh, Keigo Higashino juga mampu membuat alur cerita yang seru dan pastinya penuh misteri. Bahkan, ia juga mampu menyentuh perasaan pembaca dan membuat pembaca berpikir bagaimana akhir cerita dari novel yang dibaca. Kemampuan menulis Keigo Higashino ini juga sudah terlihat ketika ia masih menempuh pendidikan Sekolah Menengah. Bahkan, sampai menempuh pendidikan di perguruan tinggi pun, ia tetap mengasah kemampuan dalam membuat ceritanya. Bahkan, Keigo Higashino tidak segan untuk memperlihatkan manuskripnya kepada teman-temannya. Meski suka dengan dunia tulis-menulis, tetapi Keigo Higashino juga, tetapi ia pada waktu itu bekerja penuh waktu di perusahaan Nippon Denso Co. Di sana, ia bekerja atau menempuh karirnya sebagai seorang insinyur. Meski begitu, ketika malam hari tiba, Keigo Higashino tetap mengusahakan dirinya untuk menulis sebuah cerita. Tidak hanya tetap menulis sebuah cerita di malam hari saja, tetapi ia juga menulis pada akhir pekan. Oleh sebab itu, bisa dibilang kalau ia tidak ingin kemampuannya menulis hilang dan selalu ingin terus mengasah kemampuan menulisnya. Hal uniknya, nih, ternyata sebelum karyanya diterbitkan menjadi buku, Keigo Higashino sudah mengirimkan manuskripnya untuk dipertimbangkan agar mendapatkan penghargaan Edogawa Rampo. Penghargaan itu diselenggarakan dalam satu tahun sekali. Lalu, penghargaan yang pernah diperoleh selanjutnya adalah Hadiah Naoki ke-134 yang diperoleh di tahun 2006. Penghargaan itu diberikan pada novelnya yang berjudul Pengabdian Tersangka X. Tidak hanya satu penghargaan saja, tetapi melalui novel tersebut, ia juga mendapatkan beberapa penghargaan, seperti Penghargaan Misteri Honkaku ke-6. Bahkan, ia juga mendapatkan peringkat kesatu dalam “Kono Mystery ga Sugoi!”. Peringkat itu, diperoleh pada tahun 2006. Novel ini benar-benar mendapatkan banyak penghargaan, dan dalam terjemahan bahasa Inggrisnya, novel ini juga mendapatkan penghargaan Edgar di tahun 2012 pada nominasi “Novel Terbaik”. Lalu, di tahun yang sama, novel dengan judul Pengabdian Tersangka X ini juga berhasil mendapatkan penghargaan Barry, Penghargaan itu diperoleh pada nominasi “Novel Pertama Terbaik”. Biar pembahasan tentang Keigo Higashino semakin lengkap, maka kita juga akan membahas karya-karyanya. Di pembahasan ini, kita juga akan membahas sedikit sinopsis dari beberapa karyanya. Berikut ini, karya-karya Keigo Higashino yang pastinya bisa didapatkan di gramedia.com, ya. Novel dengan judul Angsa dan Kelelawar ini mengisahkan tentang kedua keluarga yang awalnya tidak percaya terhadap suatu peristiwa dan mencari suatu kebenarannya. Namun, waktu berkata lain, dalam suatu malam ternyata Shiraishi Mirei dan Kuraki Kazuma kehidupannya mulai berubah. Ayah Mirei dan juga ayah Kazuma mengalami peristiwa yang tak terduga, sehingga ayah Mirei menjadi korban dan ayah Kazuma menjadi tersangka. Ayah Mirei ditemukan sudah tewas di dalam mobil dengan luka tikam. Mirei pun tidak percaya kalau sang ayah tewas ditikam di mobil, karena Mirei percaya kalau ayahnya ini merupakan seorang pengacara yang jujur dan tulus ketika melakukan pekerjaannya. Dan Mirei pun meyakini kalau ayahnya tewas oleh seseorang yang sudah memiliki dendam. Hal ini juga berbanding terbalik dengan Kazuma yang tidak percaya kalau sang ayah merupakan pelaku dari penikaman seorang pengacara. Bahkan, Kazuma meyakini kalau sang ayah merupakan seorang yang pendiam dan tak percaya kalau sudah menjadi pembunuh. Lalu, Mirei dan Kazuma pun mulai melakukan penyelidikan bersama seperti angsa dan kelelawar. Hal ini mereka lakukan agar menemukan kebenaran dari suatu peristiwa. Apakah mereka berhasil menemukan kebenaran dibalik tewasnya ayah Mirei? Mr X merupakan tokoh utama dari novel Devotion of Suspect X (Kesetiaan Mr. X). Novel yang satu ini merupakan serial dari Detektif Galileo. Bahkan, novel ini juga terjual 800 ribu lebih dan menjadi karya novel kedua dengan penjualan paling tinggi di Jepang. Novel ini mengisahkan tentang seorang mantan suami dari Yasuko Hanaoka yang muncul kembali dalam kehidupan Yasuko Hanaoka untuk memerasnya. Namun, mantan suaminya itu terbujur kaku dan tergeletak di lantai apartemen. Yasuko berniat untuk memanggil polisi. Namun, tetangga apartemen itu memberikan saran dan bantuan agar mayatnya disembunyikan saja. Lalu, ketika mayat itu ditemukan dalam penyidikan Detektif Kusanagi, maka terduga pelakunya adalah Yasuko. Akan tetapi, tetangga apartemennya yang memberikan bantuan untuk menyembunyikan mayat itu pun turut membantu Yasuko agar tidak menjadi tersangka. Lalu, apakah tetangga apartemen Yasuko dan Yasukonya berhasil lolos dan tidak menjadi tersangka? Novel Keigo Higashino selanjutnya yang tak kalah seru adalah Keajaiban Toko Kelontong Namiya. Dalam novel ini, mengisahkan tentang surat yang tiba-tiba datang secara misterius. Anehnya lagi, ternyata surat itu bisa digunakan untuk melintasi waktu. Lalu, apakah surat itu akan digunakan untuk melintasi waktu atau dibiarkan begitu saja? Novel dengan judul Salvation of a Saint merupakan salah satu karya Keigo Higashino yang cukup banyak diterjemahkan ke beberapa bahasa. Novel ini mengisahkan tentang seorang laki-laki yang tewas setelah meminum kopi beracun. Pelakunya diduga sang istri yang telah dicampakkan. Namun, ketika peristiwa itu terjadi, sang istri pun sedang berada ribuan kilometer dari lokasi kejadian. Lalu, siapakah pelakunya? Apakah benar sang istri yang sedang berada jauh dari lokasi kejadian? Ingin mencari novel dengan latar ketika terjadinya pandemi Covid-19? Jawabannya ada pada novel karya Keigo Higashino yang berjudul Black Showman dan Pembunuhan Di Kota Tak Bernama. Dalam novel ini, pembaca akan dibuat bertanya-tanya terhadap kasus tewasnya mantan seorang guru SMP. Sang guru itu tewas dengan bekas luka cekikan di leher. Namun, apakah semua itu termasuk pembunuhan terencana atau karena tidak kesengajaan? Temukan jawabannya dengan mendapatkan bukunya di gramedia.com. Berikut ini beberapa penghargaan yang pernah diterima Keigo Higashino: Penghargaan Edogawa Rampo, Mystery Writers of Japan Award, Penghargaan Misteri Honkaku, Penghargaan Naoki, dan Chūōkōron Prize. Seperti yang sudah dibahas sebelumnya kalau karya-karya dari Keigo Higashino ini sangat banyak dan pastinya di dalamnya memiliki alur cerita yang menarik. Selain menarik, kamu juga bisa mengambil beberapa pesan kehidupan dalam setiap novelnya. Nah, bagi kamu yang masih bingung untuk mencari novel-novel karya Keigo Higashino, hilangkan rasa bingungnya, ya. Gramedia.com merupakan toko buku online yang sudah memiiliki banyak koleksi bukunya, termasuk buku Keigo Higashino, nih. Jadi, kamu tak perlu bingung lagi untuk mencari dan mendapatkan novel Keigo Higashino. Di Gramedia.com, ini, kamu tidak hanya menemukan satu buku saja, tetapi bisa menemukan beberapa novel dari Keigo Higashino, seperti Angsa dan Kelelawar, Keajaiban Toko Kelontong Namiya, Black Showman Dan Pembunuhan Di Kota Tak Bernama, Malice Catatan Pembunuhan Sang Novelis, Salvation of a Saint, dan The Newcomer Pembunuhan di Nihonbashi. Selain mudah ditemukan di gramedia.com, kamu juga bisa menemukan berbagai macam genre novel yang pastinya tak kalah seru dan menarik dari novel-novel Keigo Higashino.
+                                                                                        url_book
+1                                                     https://www.gramedia.com/products/ingkar-1
+2                                  https://www.gramedia.com/products/cinta-keindahan-kesunyian-1
+3                  https://www.gramedia.com/products/hidup-ini-brengsek-aku-dipaksa-menikmatinya
+4                                                https://www.gramedia.com/products/lupa-3ndonesa
+5 https://www.gramedia.com/products/percy-jackson-and-the-olympians-book-one-the-lightning-thief
+6                                              https://www.gramedia.com/products/invisible-helix
+                                                           title category
+1                                                         Ingkar Romantis
+2                                      Cinta Keindahan Kesunyian   Sastra
+3                  Hidup Ini Brengsek &amp; Aku Dipaksa Menikmatinya    Fiksi
+4                                                  Lupa 3Ndonesa   Sastra
+5 Percy Jackson and the Olympians, Book One: The Lightning Thief  Fantasi
+6                                                Invisible Helix   Sastra
+                                                                                  cover_book
+1          https://cdn.gramedia.com/uploads/picture_meta/2024/1/6/ceda2zwftutdnh4yko8irk.jpg
+2                       https://cdn.gramedia.com/uploads/items/CINTA_KEINDAHAN_KESUNYIAN.jpg
+3 https://cdn.gramedia.com/uploads/items/Hidup-Ini-Brengsek-dan-Aku-Dipaksa-Menikmatinya.jpg
+4                     https://cdn.gramedia.com/uploads/items/9786022912255_lupa-3ndonesa.jpg
+5                              https://cdn.gramedia.com/uploads/product-metas/pei-ejxfie.jpg
+6                              https://cdn.gramedia.com/uploads/product-metas/e3vh03x99l.jpg
+   price
+1  89100
+2  75000
+3  62100
+4  69000
+5 184500
+6 328500
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                description
+1                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             Blurb:\nSudah seutuhnya aku serahkan perasaanku padamu. Pada inti jantung ini kusematkan namamu. Kau jadi bagian hari-hariku melawan sedih, menangkar pedih, mengumpulkan serpihan yang membentuk harapan indah.\nKupikir dunia akan penuh warna. Kita tebar cahaya pelangi di mana-mana. Pada setiap sudut tempat yang dilalui, pernah kita sematkan rindu. Pada semua kesempatan yang ada, selalu kita lukis bahagia.\n\nTak pernah aku membayangkan muram senja yang datang. Deras hujan yang menghancurkan teduh. Kau pecahkan hati yang selama ini aku jaga. Berkeping sudah semua rasa percaya. Pada ujung kisah ini, masihkah aku boleh menyalakan cahaya?\n \nBANDUNG, Jelang dini hari\nSeharusnya, aku masih marah. Aku merasa berhak membenci dan menyimpan dendam. Aku berhak membalas semua perlakuan buruk padaku. Hal-hal yang menghancurkanku. Tetapi, makin aku mencoba memaafkan segalanya, rasanya hatiku makin luas. Rasa damai yang datang dari maaf itu membuatku merasa lebih tenang. Seperti aliran air dari Gunung Talang, seperti riak permukaan Danau Kembar. Seharusnya, aku menghancurkanmu juga. Aku bisa saja memberi pembalasan setimpal, mungkin dengan rasa lebih sakit. Tetapi, aku tidak akan melakukannya. Aku tidak ingin sepertimu yang jahat. Aku tidak ingin sepertimu yang khianat. \n\nAku melepaskan perasaan ingin menebus rasa sakit dengan sakit itu, aku merawat maaf yang pelan-pelan hangat menyelimuti dadaku. Maaf yang melahirkan keikhlasan yang dalam. Maaf yang melahirkan percaya diri yang lebih baik. Aku menyadari aku tidak hidup untuk orang-orang pecundang sepertimu. Aku tidak hidup untuk menghabiskan waktu bergelut dengan rasa sakit. . Aku tidak hidup untuk membuang waktuku pada hal-hal yang makin menjebakku ke jurang benci. Aku hidup demi orangtuaku yang menukar keringat mereka dengan serumpun sayuran, yang menjual tenaga mereka demi sedikit uang.\n\nTahun Terbit : Cetakan pertama, 2023
+2                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 Cinta Keindahan Kesunyian
+3                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               Novel Ini adalah karya kolaborasi antara penulis Puthut EA dan seniman jalanan Gindring Wasted yang kasar, bahkan cenderung brutal dan gelap. Tokoh utamanya menguliti realitas dengan cara pandangnya yang sepintas naif dan tolol. Tapi mungkin dia, si tokoh utama, adalah sisi gelap kita. Sisi yang diam diam ingin kita tutupi, tapi tak pernah sungguh sungguh bisa kita sembunyikan. Tanpa ditanya, kadang meletup di salah satu bilik paling sunyi di kehidupan kita.\n\nBuku ini terdiri dari tiga belas chapter dan dimulai dengan cerita dari tokoh aku yang mengalami kesialan bahkan sebelum ia lahir. Tokoh aku lahir di atas becak dan ayahnya meninggal saat sedang mengayuh pedal becak itu.\n\nAku kemudian lanjut bernarasi dengan bahasa sederhana dan kasar tentang betapa brengseknya hidupnya, mulai dari Ibunya yang menelantarkannya tanpa makanan di rumah, kedua kakaknya yang menjadi preman dan sering memukulinya, pelecehan oleh pegawai kecamatan, hingga teman temannya yang sering mengganggunya karena ia bodoh, lusuh, miskin, dan cengeng. \n\nBuku ini adalah realitas yang dibangun di dalamnya dan gaya penulis bercerita seolah menyuarakan pemikiran negatif tersembunyi milik sebagian besar orang yang sudah muak dengan ketidakpastian masa depan. Mungkin slogan 'berbahaya tapi patut dibaca' cukup untuk merangkum penilaian atas buku ini. Pembaca akan dibuat terkaget kaget bahkan tertawa dengan gaya bercerita yang naif juga frontal dari tokoh aku.
+4                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             Buku Lupa 3ndonesa ini merupakan sebuah buku fiksi sastra yang di dalamnya diceritakan kehidupan yang ada di bangsa Indonesia ini. Buku ini juga menjelaskan apa yang terjadi di balik pintu depan kita, membuat kita menyadari bahwa kenyataan, seringkali terlalu menyedihkan untuk ditertawakan.\n\nSinopsis Buku\nBuku ini menceritakan di mana ada seorang pria yang memiliki beberapa kecemasan tentang banyak fenomena yang terjadi di bangsa Indonesia ini. Ada yang politis, ada yang sosio kultural, dan ada yang tentang agama, ceritanya dikemas dengan erat dalam penggambaran budaya wayang yang disilangkan dengan kehidupan modern sehari-hari. \n\nSebelum sampean membuka lembar demi lembar buku ini, saya ingin bertanya terlebih dahulu. Apakah buku ini benar-benar jodohmu? Bila sampean hidup di negara yang sudah sesuai dengan keinginan sampean, tak perlu buang waktu membaca buku ini. Bila pekerjaan atau kuliah yang sedang sampean lakoni sudah sesuai dengan keinginan sampean, tak perlu menyia-nyiakan waktu dengan membaca buku ini. Bila kekasih, suami, atau isteri sampean sudah sesuai dengan angan-angan tentang teman bermain di muka bumi, percuma saja membolak-balik pagina-pagina buku ini. Lalu, jika sampean merasa segala sesuatunya sudah sesuai dan sempurna, saya ingin bertanya lagi: benarkah sama sekali tak ada riak-riak kegelisahan dalam batinmu? Tak adakah segelitik ragu yang menampar kesadaranmu? Sedikit saja. Heuheuheuheu ....\n\nInformasi Lain:\nJudul Buku: Lupa 3ndonesa\nFormat: Soft Cover\nTebal: 308 halaman\nTanggal Terbit: 4 Agustus 2016\nPenerbit: Mizan\nBerat: 0.2400 kg\nLebar: 13 cm\nISBN: 9786022912255
+5 The #1 New York Times Bestseller | Now a Series on Disney+\n \n12-year-old Percy Jackson discovers he is the son of Poseidon in the opener to the hilarious, fast-paced adventure fantasy series for young readers ages 10 and up.\n\nThe hardcover edition of the first book in Rick Riordan’s thrilling series, filled with magic, mythology, and plenty of monsters.\n\nPercy Jackson is about to be kicked out of boarding school again—he can't seem to stay out of trouble. Is he supposed to stand by while a bully picks on his scrawny best friend? Or not defend himself when his teacher turns into a monster and tries to kill him?\n \nMythical creatures seem to be walking straight out of the pages of Percy's Greek mythology textbook and into his life. What’s worse, he's angered a few of them: Zeus's master lightning bolt has been stolen, and Percy is the prime suspect.\n\nPercy and his friends Grover the satyr, and Annabeth, the demigod daughter of Athena, must find and return Zeus's stolen property and bring peace to a warring Mount Olympus. They travel cross country to the gates of the Underworld in Los Angeles, facing a host of enemies determined to stop them.\n \nWithmillions of copies and over 10 years spent on the New York Times bestseller list, Percy has also become a movie, a Broadway musical, and now a Disney+ series. He continues to find fans in classrooms and libraries across the world.\n\n\nAbout the author\nRick Riordan is the #1 New York Times bestselling author of the Percy Jackson and the Olympians series, the Kane Chronicles, and the Heroes of Olympus. He is also the author of the multi-award-winning Tres Navarre mystery series for adults.\n\nFor fifteen years, Rick taught English and history at public and private middle schools in the San Francisco Bay Area and in Texas. In 2002, Saint Mary's Hall honored him with the school's first Master Teacher Award.\n\nWhile teaching full time, Riordan began writing mystery novels for grownups. His Tres Navarre series went on to win the top three national awards in the mystery genre - the Edgar, the Anthony and the Shamus. Riordan turned to children's fiction when he started The Lightning Thief as a bedtime story for his oldest son.\n\nToday over 35 million copies of his Percy Jackson, Kane Chronicles, and Heroes of Olympus books are in print in the United States, and rights have been sold into more than 35 countries. Rick is also the author of The 39 Clues: The Maze of Bones, another #1 New York Times bestseller. \n\nRick Riordan now writes full-time. He lives in Boston with his wife and two sons.
+6                                                                                                                                                                                                                                                                 The body of a young man is found floating in Tokyo Bay. But his death was no accident-Ryota Uetsuji was shot. He'd been reported missing the week before by his live-in girlfriend Sonoka Shimauchi, but when detectives from the Homicide Squad go to interview her, she is nowhere to be found. She's taken time off from work, clothes and effects are missing from the apartment she shared. And when the detectives learn that she was the victim of domestic abuse, they presume that she was the killer. But her alibi is airtight-she was hours away in Kyoto when Ryota disappeared, forcing Detectives Kusanagi and Utsumi to restart their investigation.\n\nBut if Sonoko didn't kill her abusive lover, then who did? A thin thread of association leads them to their old consultant, brilliant physicist Manabu Yukawa, known in the department as "Detective Galileo." With Sonoko still missing, the detectives investigate other threads of association-an eccentric artist, who was Sonoko's mother figure after her own single mother passed; and an older woman who is the owner of a hostess club. And how is Sonoko continuing to stay one step ahead of the police searching for her? It's up to Galileo to find the nearly hidden threads of history and coincidence that connect the people around the bloody murder- which, surprisingly, connect to his own traumatic past-to unravel not merely the facts of the crime but the helix that ties them all together.\n\n***\n\nHave you ever thought about how fascinating the world is, wide open through the pages of a book? Reading is not just a routine activity, but also an unlimited adventure into imagination and knowledge.\n\nReading sharpens the mind, broadens horizons, and enriches vocabulary. It is a gateway to a limitless world beyond us.\n\nSet aside a specific time for reading each day. From reading before bed to finding time in the morning, reading habits can be formed with consistency.\n\nChoose books based on your interests and literacy level. Start with books that match your desires and reading ability.\nFind a quiet and comfortable place to read. Adequate lighting, a comfortable chair, and a bit of background music can create a better reading experience.\n\nMake notes or keep a journal about the books you've read. Write down your thoughts, impressions, and lessons you’ve gained.
+        publisher                                   url_publisher publish_date
+1     Kawah Media     https://www.gramedia.com/vendor/kawah-media   06/12/2023
+2          Narasi          https://www.gramedia.com/vendor/narasi   21/10/2020
+3     Shira Media     https://www.gramedia.com/vendor/shira-media   12/11/2019
+4           Mizan           https://www.gramedia.com/vendor/mizan   04/08/2016
+5 Disney-Hyperion https://www.gramedia.com/vendor/disney-hyperion   15/07/2025
+6    Abacus Books    https://www.gramedia.com/vendor/abacus-books   07/07/2025
+      ISBN pages  language height width weight              username gender
+1 9.79e+12   312 Indonesia     19    13   0.42   Kayla Anwar Permata      P
+2 9.79e+12   374 Indonesia     19    13   0.47    Alya Rahma Saputra      P
+3 9.79e+12   122 Indonesia     19    13   0.50         Fauzan Kusuma      L
+4 9.79e+12   308 Indonesia      0    13   0.44 Fajar Hidayah Gunawan      L
+5 9.78e+12   400   English     19    13   0.50           Khairunnisa      P
+6 9.78e+12   288   English     23    15   0.58    Akbar Syah Pratama      L
+  date_of_birth       city user_rating review_date
+1    09/10/1994   Surabaya           5  29/02/2024
+2    27/11/1993      Medan           4  17/05/2023
+3    20/01/1982   Semarang           4  06/08/2023
+4    09/05/1998 Yogyakarta           5  16/12/2018
+5    03/11/1998     Malang           4  05/01/2026
+6    17/12/2001   Makassar           5  25/08/2025</code></pre>
+</div>
+</div>
+</section>
+<section id="preprocessing" class="level2">
+<h2 class="anchored" data-anchor-id="preprocessing">Preprocessing</h2>
+<section id="cek-struktur-data" class="level3">
+<h3 class="anchored" data-anchor-id="cek-struktur-data">Cek Struktur Data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(novel)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   20223 obs. of  24 variables:
+ $ author          : chr  "Boy Candra" "Kahlil Gibran" "Puthut Ea" "Sujiwo Tejo" ...
+ $ author_profile  : chr  "https://cdn.gramedia.com/uploads/authors/27oa2az9av.jpg" "https://cdn.gramedia.com/uploads/authors/Kahlil_Ghibran.jpg" "https://cdn.gramedia.com/uploads/authors/Puthut-EA-7.jpg" "https://cdn.gramedia.com/uploads/authors/Sujiwo_Tejo.jpg" ...
+ $ author_biography: chr  "Boy Candra adalah seorang laki-laki kelahiran Sumatera Barat, 21 November 1989. penulis Setelah Hujan Reda ini "| __truncated__ "Lahir di Basyari, Lebanon, 6 Januari 1883 dari keluarga Katolik Maronit. Kahlil Gibran dikenal sebagai sastrawa"| __truncated__ "Puthut EA lahir di Rembang, Jawa Tengah, 28 Maret 1977. Ia adalah sastrawan sekaligus peneliti berkebangsaan In"| __truncated__ "Dikenal sebagai seorang budayawan yang lama berkecimpung dalam hal menulis, melukis, musik, bahkan dalang, Suji"| __truncated__ ...
+ $ url_book        : chr  "https://www.gramedia.com/products/ingkar-1" "https://www.gramedia.com/products/cinta-keindahan-kesunyian-1" "https://www.gramedia.com/products/hidup-ini-brengsek-aku-dipaksa-menikmatinya" "https://www.gramedia.com/products/lupa-3ndonesa" ...
+ $ title           : chr  "Ingkar" "Cinta Keindahan Kesunyian" "Hidup Ini Brengsek &amp; Aku Dipaksa Menikmatinya" "Lupa 3Ndonesa" ...
+ $ category        : chr  "Romantis" "Sastra" "Fiksi" "Sastra" ...
+ $ cover_book      : chr  "https://cdn.gramedia.com/uploads/picture_meta/2024/1/6/ceda2zwftutdnh4yko8irk.jpg" "https://cdn.gramedia.com/uploads/items/CINTA_KEINDAHAN_KESUNYIAN.jpg" "https://cdn.gramedia.com/uploads/items/Hidup-Ini-Brengsek-dan-Aku-Dipaksa-Menikmatinya.jpg" "https://cdn.gramedia.com/uploads/items/9786022912255_lupa-3ndonesa.jpg" ...
+ $ price           : int  89100 75000 62100 69000 184500 328500 184500 98100 1305000 89100 ...
+ $ description     : chr  "Blurb:\nSudah seutuhnya aku serahkan perasaanku padamu. Pada inti jantung ini kusematkan namamu. Kau jadi bagia"| __truncated__ "Cinta Keindahan Kesunyian" "Novel Ini adalah karya kolaborasi antara penulis Puthut EA dan seniman jalanan Gindring Wasted yang kasar, bahk"| __truncated__ "Buku Lupa 3ndonesa ini merupakan sebuah buku fiksi sastra yang di dalamnya diceritakan kehidupan yang ada di ba"| __truncated__ ...
+ $ publisher       : chr  "Kawah Media" "Narasi" "Shira Media" "Mizan" ...
+ $ url_publisher   : chr  "https://www.gramedia.com/vendor/kawah-media" "https://www.gramedia.com/vendor/narasi" "https://www.gramedia.com/vendor/shira-media" "https://www.gramedia.com/vendor/mizan" ...
+ $ publish_date    : chr  "06/12/2023" "21/10/2020" "12/11/2019" "04/08/2016" ...
+ $ ISBN            : num  9.79e+12 9.79e+12 9.79e+12 9.79e+12 9.78e+12 ...
+ $ pages           : int  312 374 122 308 400 288 640 433 NA 340 ...
+ $ language        : chr  "Indonesia" "Indonesia" "Indonesia" "Indonesia" ...
+ $ height          : int  19 19 19 0 19 23 20 20 25 21 ...
+ $ width           : int  13 13 13 13 13 15 13 14 20 13 ...
+ $ weight          : num  0.42 0.47 0.5 0.44 0.5 ...
+ $ username        : chr  "Kayla Anwar Permata" "Alya Rahma Saputra" "Fauzan Kusuma" "Fajar Hidayah Gunawan" ...
+ $ gender          : chr  "P" "P" "L" "L" ...
+ $ date_of_birth   : chr  "09/10/1994" "27/11/1993" "20/01/1982" "09/05/1998" ...
+ $ city            : chr  "Surabaya" "Medan" "Semarang" "Yogyakarta" ...
+ $ user_rating     : int  5 4 4 5 4 5 4 5 4 5 ...
+ $ review_date     : chr  "29/02/2024" "17/05/2023" "06/08/2023" "16/12/2018" ...</code></pre>
+</div>
+</div>
+<p>Setelah melakukan eksplorasi awal terhadap dataset menggunakan fungsi <code>str()</code>, diperoleh informasi bahwa dataset <strong>novel</strong> terdiri dari <strong>20.223 observasi dan 24 variabel</strong>. Struktur data menunjukkan bahwa sebagian besar variabel bertipe <strong>character</strong>, sementara beberapa variabel numerik seperti <strong>price</strong>, <strong>pages</strong>, dan <strong>user_rating</strong> bertipe <strong>integer atau numeric</strong>.</p>
+<p>Namun, ditemukan bahwa beberapa variabel yang merepresentasikan informasi waktu, yaitu <strong>publish_date</strong>, <strong>date_of_birth</strong>, dan <strong>review_date</strong>, masih tersimpan dalam format <strong>character</strong>. Format ini kurang sesuai untuk proses analisis lebih lanjut yang melibatkan manipulasi waktu, seperti analisis tren atau perhitungan selisih tanggal.</p>
+<p>Oleh karena itu, pada tahap preprocessing dilakukan <strong>konversi tipe data</strong> pada variabel tersebut dari <strong>character menjadi tipe Date</strong> agar data tanggal dapat diproses dengan lebih tepat dalam analisis selanjutnya.</p>
+</section>
+<section id="konversi-tipe-data" class="level3">
+<h3 class="anchored" data-anchor-id="konversi-tipe-data">Konversi tipe data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>novel<span class="sc">$</span>publish_date <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(novel<span class="sc">$</span>publish_date, <span class="at">format =</span> <span class="st">"%d/%m/%Y"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>novel<span class="sc">$</span>date_of_birth <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(novel<span class="sc">$</span>date_of_birth, <span class="at">format =</span> <span class="st">"%d/%m/%Y"</span>)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>novel<span class="sc">$</span>review_date <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(novel<span class="sc">$</span>review_date, <span class="at">format =</span> <span class="st">"%d/%m/%Y"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Setelah dilakukan konversi tipe data pada variabel tanggal, dilakukan pengecekan ulang struktur data untuk memastikan bahwa perubahan telah berhasil diterapkan. Hasil pemeriksaan menunjukkan bahwa variabel <strong>publish_date</strong>, <strong>date_of_birth</strong>, dan <strong>review_date</strong> telah berhasil diubah menjadi tipe data <strong>Date</strong>.</p>
+<p>Hal ini terlihat dari output struktur data yang menampilkan format <code>Date[1:20223]</code>, yang menunjukkan bahwa setiap nilai pada variabel tersebut telah dikenali sebagai objek tanggal dengan format standar <strong>YYYY-MM-DD</strong>. Dengan demikian, variabel tanggal pada dataset kini telah siap digunakan untuk analisis lebih lanjut .</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(novel<span class="sc">$</span>publish_date)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> Date[1:20223], format: "2023-12-06" "2020-10-21" "2019-11-12" "2016-08-04" "2025-07-15" ...</code></pre>
+</div>
+</div>
+<p>Selanjutnya dilakukan pemeriksaan terhadap tipe data pada variabel <strong>ISBN</strong>. Berdasarkan hasil eksplorasi struktur data, variabel ISBN masih terbaca sebagai <strong>numeric</strong>, yang ditunjukkan dengan format notasi ilmiah seperti <em>9.79e+12</em>. Format tersebut kurang tepat karena ISBN merupakan kode identifikasi buku yang bersifat tekstual.</p>
+<p>Oleh karena itu, dilakukan konversi tipe data ISBN dari <strong>numeric menjadi character</strong> agar nilai ISBN dapat ditampilkan secara utuh tanpa perubahan format dan dapat digunakan dengan lebih tepat dalam proses analisis.</p>
+</section>
+<section id="pemeriksaan-terhadap-tipe-data-pada-variabel-isbn" class="level3">
+<h3 class="anchored" data-anchor-id="pemeriksaan-terhadap-tipe-data-pada-variabel-isbn">Pemeriksaan terhadap tipe data pada variabel ISBN</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>novel<span class="sc">$</span>ISBN <span class="ot">&lt;-</span> <span class="fu">as.character</span>(novel<span class="sc">$</span>ISBN)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="missing-value" class="level3">
+<h3 class="anchored" data-anchor-id="missing-value">Missing value</h3>
+<p>Tahap selanjutnya dalam preprocessing adalah melakukan pemeriksaan terhadap <strong>missing value</strong> pada setiap variabel dalam dataset. Pemeriksaan ini dilakukan menggunakan fungsi <code>colSums(is.na())</code> untuk mengetahui jumlah nilai yang hilang pada masing-masing variabel.</p>
+<p>Hasil pemeriksaan menunjukkan bahwa sebagian besar variabel tidak memiliki nilai yang hilang. Namun, terdapat beberapa variabel yang memiliki missing value, yaitu <strong>ISBN sebanyak 118 data</strong>, <strong>pages sebanyak 1274 data</strong>, <strong>height sebanyak 143 data</strong>, dan <strong>width sebanyak 90 data</strong>.</p>
+<p>Meskipun terdapat beberapa nilai yang hilang, jumlahnya relatif kecil dibandingkan dengan total observasi dalam dataset yang berjumlah <strong>20.223 data</strong>, sehingga data tersebut masih dapat digunakan untuk proses analisis lebih lanjut.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(novel))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          author   author_profile author_biography         url_book 
+               0                0                0                0 
+           title         category       cover_book            price 
+               0                0                0                0 
+     description        publisher    url_publisher     publish_date 
+               0                0                0                0 
+            ISBN            pages         language           height 
+             118             1274                0              143 
+           width           weight         username           gender 
+              90                0                0                0 
+   date_of_birth             city      user_rating      review_date 
+               0                0                0                0 </code></pre>
+</div>
+</div>
+<p>Setelah melakukan pemeriksaan missing value, tahap selanjutnya adalah memeriksa kemungkinan adanya <strong>duplikasi data</strong> dalam dataset. Pemeriksaan dilakukan menggunakan fungsi <code>duplicated()</code> pada variabel judul buku untuk mengetahui apakah terdapat data yang muncul lebih dari satu kali.</p>
+<p>Hasil pemeriksaan menunjukkan bahwa beberapa judul buku muncul lebih dari satu kali. Hal ini wajar terjadi karena satu buku dapat memiliki lebih dari satu ulasan dari pengguna yang berbeda.</p>
+</section>
+<section id="cek-data-duplikat" class="level3">
+<h3 class="anchored" data-anchor-id="cek-data-duplikat">Cek Data Duplikat</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">duplicated</span>(novel<span class="sc">$</span>title))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 19372</code></pre>
+</div>
+</div>
+<p>Setelah dilakukan pemeriksaan terhadap duplikasi data menggunakan fungsi <code>duplicated()</code> pada variabel <strong>title</strong>, diperoleh hasil bahwa terdapat <strong>19.372 data yang terdeteksi sebagai duplikasi</strong>. Jumlah ini cukup besar dibandingkan dengan total observasi dalam dataset.</p>
+<p>Namun, kondisi tersebut masih dapat dianggap wajar karena dataset tidak hanya memuat informasi buku, tetapi juga mencakup <strong>ulasan (review) dari pengguna</strong>. Oleh karena itu, satu judul buku dapat muncul beberapa kali karena memiliki ulasan dari pengguna yang berbeda. Dengan demikian, data duplikasi ini tidak dihapus karena masih relevan dengan struktur data yang dianalisis.</p>
+</section>
+<section id="pemeriksaan-nilai-unik-kategori" class="level3">
+<h3 class="anchored" data-anchor-id="pemeriksaan-nilai-unik-kategori">Pemeriksaan nilai unik kategori</h3>
+<p>Setelah melakukan pemeriksaan duplikasi data, langkah selanjutnya adalah melakukan pemeriksaan terhadap <strong>nilai unik pada variabel kategori</strong>. Pemeriksaan ini bertujuan untuk mengetahui jenis kategori buku yang terdapat dalam dataset serta memastikan tidak terdapat kategori yang tidak konsisten.</p>
+<p>Pemeriksaan dilakukan menggunakan fungsi <code>unique()</code> dan <code>table()</code> pada variabel <strong>category</strong>. Hasil pemeriksaan menunjukkan bahwa dataset memiliki beberapa kategori buku yang berbeda, yang nantinya dapat digunakan sebagai salah satu variabel penting dalam proses analisis eksploratif data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(novel<span class="sc">$</span>category)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                                            Agama     Aliran &amp; Gaya Bahasa 
+                     413                       48                       87 
+                Antologi               Arsitektur  Biografi &amp; Autobiografi 
+                      28                       17                       75 
+         Budaya &amp; Sosial                    Emosi                  Fantasi 
+                      26                       10                     3703 
+                   Fiksi      Fiksi Anak &amp; Remaja             Fiksi Dewasa 
+                    5795                      108                       20 
+            Fiksi Ilmiah            Fiksi Sejarah         Geografi Sejarah 
+                     390                       59                      128 
+                   Horor              Ilmu Sosial                    Islam 
+                      30                       43                      102 
+          Kehidupan Kota      Keluarga &amp; Hubungan                   Klasik 
+                     164                       41                      198 
+    Komik &amp; Novel Grafis  Legenda, Mitos, Dongeng                    Manga 
+                      72                        2                      113 
+          Memoar Pribadi                  Misteri       Misteri &amp; Detektif 
+                      65                      447                      187 
+   Motivasi &amp; Inspiratif                   Muslim                    Novel 
+                      33                        1                       98 
+              Pendidikan          Personal Growth                Psikologi 
+                      22                       43                       23 
+                   Puisi                 Romantis             Sains &amp; Alam 
+                     146                     1975                       14 
+                  Sastra Sastra Dunia Asia (Umum)                  Sejarah 
+                    3956                      114                     1091 
+           Spiritualitas                 Thriller             Topik Sosial 
+                      49                      264                       23 </code></pre>
+</div>
+</div>
+<p>Berdasarkan hasil pemeriksaan distribusi kategori menggunakan fungsi <code>table()</code>, diperoleh informasi bahwa dataset memiliki berbagai jenis kategori buku dengan jumlah yang bervariasi. Beberapa kategori dengan jumlah buku terbanyak antara lain <strong>Fiksi (5.795 buku)</strong>, <strong>Sastra (3.956 buku)</strong>, <strong>Fantasi (3.703 buku)</strong>, dan <strong>Romantis (1.975 buku)</strong>.</p>
+<p>Hal ini menunjukkan bahwa dataset didominasi oleh buku-buku yang termasuk dalam kategori fiksi dan sastra. Sementara itu, beberapa kategori lain memiliki jumlah buku yang relatif sedikit, seperti <strong>Muslim</strong> dan <strong>Legenda, Mitos, Dongeng</strong>. Variasi jumlah kategori ini dapat memberikan gambaran mengenai kecenderungan jenis buku yang tersedia dalam dataset.</p>
+</section>
+<section id="pemeriksaan-statistik-variabel-numerik." class="level3">
+<h3 class="anchored" data-anchor-id="pemeriksaan-statistik-variabel-numerik."><strong>Pemeriksaan statistik variabel numerik</strong>.</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(novel[,<span class="fu">c</span>(<span class="st">"price"</span>,<span class="st">"pages"</span>,<span class="st">"user_rating"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     price             pages         user_rating   
+ Min.   :   3750   Min.   :  32.0   Min.   :2.000  
+ 1st Qu.:  63200   1st Qu.: 208.0   1st Qu.:4.000  
+ Median :  89100   Median : 315.0   Median :4.000  
+ Mean   : 125070   Mean   : 351.1   Mean   :4.152  
+ 3rd Qu.: 127200   3rd Qu.: 412.0   3rd Qu.:5.000  
+ Max.   :3921300   Max.   :8448.0   Max.   :5.000  
+                   NA's   :1274                    </code></pre>
+</div>
+</div>
+<p>Selanjutnya dilakukan pemeriksaan statistik deskriptif terhadap beberapa variabel numerik dalam dataset, yaitu <strong>price</strong>, <strong>pages</strong>, dan <strong>user_rating</strong>, menggunakan fungsi <code>summary()</code>. Pemeriksaan ini bertujuan untuk memperoleh gambaran umum mengenai distribusi nilai pada masing-masing variabel.</p>
+<p>Hasil analisis menunjukkan bahwa harga buku memiliki nilai minimum sebesar <strong>3.750</strong> dan maksimum sebesar <strong>3.921.300</strong>, dengan rata-rata harga sekitar <strong>125.070</strong>. Hal ini menunjukkan bahwa terdapat variasi harga buku yang cukup besar dalam dataset.</p>
+<p>Untuk variabel <strong>pages</strong>, jumlah halaman buku berkisar antara <strong>32 hingga 8.448 halaman</strong>, dengan rata-rata sekitar <strong>351 halaman</strong>. Selain itu, terdapat <strong>1.274 data yang memiliki nilai kosong</strong> pada variabel ini.</p>
+<p>Sementara itu, variabel <strong>user_rating</strong> memiliki rentang nilai antara <strong>2 hingga 5</strong>, dengan rata-rata rating sebesar <strong>4,15</strong>, yang menunjukkan bahwa sebagian besar buku dalam dataset memperoleh penilaian yang cukup baik dari pengguna.</p>
+</section>
+</section>
+<section id="exploratory-data-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="exploratory-data-analysis">Exploratory Data Analysis</h2>
+<p>Setelah melalui tahap preprocessing data, langkah selanjutnya adalah melakukan <strong>Exploratory Data Analysis (EDA)</strong>. Tahap ini bertujuan untuk mengeksplorasi karakteristik data serta mengidentifikasi pola, distribusi, dan hubungan antar variabel dalam dataset. Melalui EDA, dapat diperoleh pemahaman awal mengenai struktur dan kecenderungan data sebelum dilakukan analisis lebih lanjut.</p>
+<section id="distribusi-harga-buku" class="level3">
+<h3 class="anchored" data-anchor-id="distribusi-harga-buku">Distribusi harga buku</h3>
+<p>Tujuannya untuk melihat sebaran harga buku dalam dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(novel, <span class="fu">aes</span>(<span class="at">x =</span> price)) <span class="sc">+</span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">fill =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribusi Harga Buku"</span>,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Harga Buku"</span>,</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Jumlah Buku"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Preprocessing-dan-EDA--Data-Novel-dan-Buku_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Berdasarkan histogram distribusi harga buku, terlihat bahwa sebagian besar buku dalam dataset memiliki harga yang relatif rendah hingga menengah. Konsentrasi data terbesar berada pada rentang harga yang lebih rendah, yang menunjukkan bahwa mayoritas buku dijual dengan harga yang terjangkau.</p>
+<p>Distribusi harga buku juga menunjukkan pola <strong>right-skewed</strong> atau miring ke kanan, di mana sebagian besar data terkumpul pada nilai harga yang lebih kecil, sementara hanya sebagian kecil buku yang memiliki harga sangat tinggi. Selain itu, terlihat adanya beberapa nilai ekstrem dengan harga yang jauh lebih tinggi dibandingkan mayoritas buku dalam dataset.</p>
+</section>
+<section id="jumlah-buku-berdasarkan-kategori" class="level3">
+<h3 class="anchored" data-anchor-id="jumlah-buku-berdasarkan-kategori">Jumlah buku berdasarkan kategori</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(novel, <span class="fu">aes</span>(<span class="at">x =</span> category)) <span class="sc">+</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill =</span> <span class="st">"darkgreen"</span>) <span class="sc">+</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Jumlah Buku Berdasarkan Kategori"</span>,</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Kategori Buku"</span>,</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Jumlah Buku"</span>) <span class="sc">+</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Preprocessing-dan-EDA--Data-Novel-dan-Buku_files/figure-html/unnamed-chunk-13-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Grafik jumlah buku berdasarkan kategori menunjukkan bahwa distribusi kategori buku dalam dataset tidak merata. Beberapa kategori memiliki jumlah buku yang jauh lebih banyak dibandingkan kategori lainnya.</p>
+<p>Kategori seperti <strong>Fiksi</strong>, <strong>Sastra</strong>, dan <strong>Fantasi</strong> merupakan kategori dengan jumlah buku terbanyak dalam dataset. Hal ini menunjukkan bahwa koleksi buku dalam dataset didominasi oleh buku-buku dengan genre fiksi dan sastra.</p>
+<p>Di sisi lain, terdapat beberapa kategori dengan jumlah buku yang relatif sedikit, seperti kategori <strong>Legenda, Mitos, Dongeng</strong> dan <strong>Muslim</strong>. Variasi jumlah kategori ini menunjukkan bahwa meskipun terdapat kategori yang dominan, dataset tetap memiliki keberagaman jenis buku yang cukup luas.</p>
+</section>
+<section id="distribusi-rating-pengguna." class="level3">
+<h3 class="anchored" data-anchor-id="distribusi-rating-pengguna.">Distribusi rating pengguna.</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(novel, <span class="fu">aes</span>(<span class="at">x =</span> user_rating)) <span class="sc">+</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill =</span> <span class="st">"orange"</span>) <span class="sc">+</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribusi Rating Pengguna"</span>,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Rating"</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Jumlah"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Preprocessing-dan-EDA--Data-Novel-dan-Buku_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Grafik distribusi rating pengguna menunjukkan bahwa sebagian besar buku dalam dataset memperoleh rating yang relatif tinggi. Rating <strong>4</strong> merupakan nilai yang paling sering diberikan oleh pengguna, diikuti oleh rating <strong>5</strong>.</p>
+<p>Sementara itu, jumlah buku dengan rating yang lebih rendah seperti <strong>2 dan 3</strong> relatif lebih sedikit. Hal ini menunjukkan bahwa mayoritas buku dalam dataset mendapatkan penilaian yang baik dari pengguna, sehingga dapat disimpulkan bahwa tingkat kepuasan pengguna terhadap buku-buku dalam dataset cenderung tinggi.</p>
+</section>
+<section id="analisis-hubungan-antara-jumlah-halaman-dan-harga-buku." class="level3">
+<h3 class="anchored" data-anchor-id="analisis-hubungan-antara-jumlah-halaman-dan-harga-buku.">Analisis hubungan antara jumlah halaman dan harga buku.</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(novel, <span class="fu">aes</span>(<span class="at">x =</span> pages, <span class="at">y =</span> price)) <span class="sc">+</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> scales<span class="sc">::</span>comma) <span class="sc">+</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Hubungan Jumlah Halaman dan Harga Buku"</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Jumlah Halaman"</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Harga Buku"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 1274 rows containing missing values or values outside the scale range
+(`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="Preprocessing-dan-EDA--Data-Novel-dan-Buku_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Grafik hubungan antara jumlah halaman dan harga buku menunjukkan bahwa sebagian besar buku dengan jumlah halaman yang relatif sedikit hingga menengah memiliki harga yang lebih rendah. Titik-titik pada grafik terlihat terkonsentrasi pada area dengan jumlah halaman yang tidak terlalu besar dan harga yang relatif terjangkau.</p>
+<p>Selain itu, terdapat beberapa titik yang berada jauh dari kumpulan data utama yang menunjukkan adanya buku dengan jumlah halaman sangat besar atau harga yang jauh lebih tinggi dibandingkan buku lainnya. Hal ini menunjukkan adanya beberapa nilai ekstrem (outlier) dalam dataset.</p>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

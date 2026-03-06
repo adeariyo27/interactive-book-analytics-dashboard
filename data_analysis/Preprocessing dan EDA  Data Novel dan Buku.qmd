@@ -1,0 +1,192 @@
+---
+title: "Preprocessing dan EDA"
+author: "Natalinda"
+format: html
+editor: visual
+---
+
+## Preprocessing & EDA 
+
+```{r}
+library(DBI)
+library(RMariaDB)
+
+con <- dbConnect(
+  RMariaDB::MariaDB(),
+  dbname = "db_books",
+  host = "127.0.0.1",
+  port = 3307,
+  user = "root",
+  password = ""
+)
+```
+
+```{r}
+novel <- dbReadTable(con, "novel_rawdata")
+```
+
+```{r}
+head(novel)
+```
+
+## Preprocessing
+
+### Cek Struktur Data
+
+```{r}
+str(novel)
+```
+
+Setelah melakukan eksplorasi awal terhadap dataset menggunakan fungsi `str()`, diperoleh informasi bahwa dataset **novel** terdiri dari **20.223 observasi dan 24 variabel**. Struktur data menunjukkan bahwa sebagian besar variabel bertipe **character**, sementara beberapa variabel numerik seperti **price**, **pages**, dan **user_rating** bertipe **integer atau numeric**.
+
+Namun, ditemukan bahwa beberapa variabel yang merepresentasikan informasi waktu, yaitu **publish_date**, **date_of_birth**, dan **review_date**, masih tersimpan dalam format **character**. Format ini kurang sesuai untuk proses analisis lebih lanjut yang melibatkan manipulasi waktu, seperti analisis tren atau perhitungan selisih tanggal.
+
+Oleh karena itu, pada tahap preprocessing dilakukan **konversi tipe data** pada variabel tersebut dari **character menjadi tipe Date** agar data tanggal dapat diproses dengan lebih tepat dalam analisis selanjutnya.
+
+### Konversi tipe data
+
+```{r}
+novel$publish_date <- as.Date(novel$publish_date, format = "%d/%m/%Y")
+novel$date_of_birth <- as.Date(novel$date_of_birth, format = "%d/%m/%Y")
+novel$review_date <- as.Date(novel$review_date, format = "%d/%m/%Y")
+```
+
+Setelah dilakukan konversi tipe data pada variabel tanggal, dilakukan pengecekan ulang struktur data untuk memastikan bahwa perubahan telah berhasil diterapkan. Hasil pemeriksaan menunjukkan bahwa variabel **publish_date**, **date_of_birth**, dan **review_date** telah berhasil diubah menjadi tipe data **Date**.
+
+Hal ini terlihat dari output struktur data yang menampilkan format `Date[1:20223]`, yang menunjukkan bahwa setiap nilai pada variabel tersebut telah dikenali sebagai objek tanggal dengan format standar **YYYY-MM-DD**. Dengan demikian, variabel tanggal pada dataset kini telah siap digunakan untuk analisis lebih lanjut .
+
+```{r}
+str(novel$publish_date)
+```
+
+Selanjutnya dilakukan pemeriksaan terhadap tipe data pada variabel **ISBN**. Berdasarkan hasil eksplorasi struktur data, variabel ISBN masih terbaca sebagai **numeric**, yang ditunjukkan dengan format notasi ilmiah seperti *9.79e+12*. Format tersebut kurang tepat karena ISBN merupakan kode identifikasi buku yang bersifat tekstual.
+
+Oleh karena itu, dilakukan konversi tipe data ISBN dari **numeric menjadi character** agar nilai ISBN dapat ditampilkan secara utuh tanpa perubahan format dan dapat digunakan dengan lebih tepat dalam proses analisis.
+
+### Pemeriksaan terhadap tipe data pada variabel ISBN
+
+```{r}
+novel$ISBN <- as.character(novel$ISBN)
+```
+
+### Missing value
+
+Tahap selanjutnya dalam preprocessing adalah melakukan pemeriksaan terhadap **missing value** pada setiap variabel dalam dataset. Pemeriksaan ini dilakukan menggunakan fungsi `colSums(is.na())` untuk mengetahui jumlah nilai yang hilang pada masing-masing variabel.
+
+Hasil pemeriksaan menunjukkan bahwa sebagian besar variabel tidak memiliki nilai yang hilang. Namun, terdapat beberapa variabel yang memiliki missing value, yaitu **ISBN sebanyak 118 data**, **pages sebanyak 1274 data**, **height sebanyak 143 data**, dan **width sebanyak 90 data**.
+
+Meskipun terdapat beberapa nilai yang hilang, jumlahnya relatif kecil dibandingkan dengan total observasi dalam dataset yang berjumlah **20.223 data**, sehingga data tersebut masih dapat digunakan untuk proses analisis lebih lanjut.
+
+```{r}
+colSums(is.na(novel))
+```
+
+Setelah melakukan pemeriksaan missing value, tahap selanjutnya adalah memeriksa kemungkinan adanya **duplikasi data** dalam dataset. Pemeriksaan dilakukan menggunakan fungsi `duplicated()` pada variabel judul buku untuk mengetahui apakah terdapat data yang muncul lebih dari satu kali.
+
+Hasil pemeriksaan menunjukkan bahwa beberapa judul buku muncul lebih dari satu kali. Hal ini wajar terjadi karena satu buku dapat memiliki lebih dari satu ulasan dari pengguna yang berbeda.
+
+### Cek Data Duplikat
+
+```{r}
+sum(duplicated(novel$title))
+```
+
+Setelah dilakukan pemeriksaan terhadap duplikasi data menggunakan fungsi `duplicated()` pada variabel **title**, diperoleh hasil bahwa terdapat **19.372 data yang terdeteksi sebagai duplikasi**. Jumlah ini cukup besar dibandingkan dengan total observasi dalam dataset.
+
+Namun, kondisi tersebut masih dapat dianggap wajar karena dataset tidak hanya memuat informasi buku, tetapi juga mencakup **ulasan (review) dari pengguna**. Oleh karena itu, satu judul buku dapat muncul beberapa kali karena memiliki ulasan dari pengguna yang berbeda. Dengan demikian, data duplikasi ini tidak dihapus karena masih relevan dengan struktur data yang dianalisis.
+
+### Pemeriksaan nilai unik kategori
+
+Setelah melakukan pemeriksaan duplikasi data, langkah selanjutnya adalah melakukan pemeriksaan terhadap **nilai unik pada variabel kategori**. Pemeriksaan ini bertujuan untuk mengetahui jenis kategori buku yang terdapat dalam dataset serta memastikan tidak terdapat kategori yang tidak konsisten.
+
+Pemeriksaan dilakukan menggunakan fungsi `unique()` dan `table()` pada variabel **category**. Hasil pemeriksaan menunjukkan bahwa dataset memiliki beberapa kategori buku yang berbeda, yang nantinya dapat digunakan sebagai salah satu variabel penting dalam proses analisis eksploratif data.
+
+```{r}
+table(novel$category)
+```
+
+Berdasarkan hasil pemeriksaan distribusi kategori menggunakan fungsi `table()`, diperoleh informasi bahwa dataset memiliki berbagai jenis kategori buku dengan jumlah yang bervariasi. Beberapa kategori dengan jumlah buku terbanyak antara lain **Fiksi (5.795 buku)**, **Sastra (3.956 buku)**, **Fantasi (3.703 buku)**, dan **Romantis (1.975 buku)**.
+
+Hal ini menunjukkan bahwa dataset didominasi oleh buku-buku yang termasuk dalam kategori fiksi dan sastra. Sementara itu, beberapa kategori lain memiliki jumlah buku yang relatif sedikit, seperti **Muslim** dan **Legenda, Mitos, Dongeng**. Variasi jumlah kategori ini dapat memberikan gambaran mengenai kecenderungan jenis buku yang tersedia dalam dataset.
+
+### **Pemeriksaan statistik variabel numerik**.
+
+```{r}
+summary(novel[,c("price","pages","user_rating")])
+```
+
+Selanjutnya dilakukan pemeriksaan statistik deskriptif terhadap beberapa variabel numerik dalam dataset, yaitu **price**, **pages**, dan **user_rating**, menggunakan fungsi `summary()`. Pemeriksaan ini bertujuan untuk memperoleh gambaran umum mengenai distribusi nilai pada masing-masing variabel.
+
+Hasil analisis menunjukkan bahwa harga buku memiliki nilai minimum sebesar **3.750** dan maksimum sebesar **3.921.300**, dengan rata-rata harga sekitar **125.070**. Hal ini menunjukkan bahwa terdapat variasi harga buku yang cukup besar dalam dataset.
+
+Untuk variabel **pages**, jumlah halaman buku berkisar antara **32 hingga 8.448 halaman**, dengan rata-rata sekitar **351 halaman**. Selain itu, terdapat **1.274 data yang memiliki nilai kosong** pada variabel ini.
+
+Sementara itu, variabel **user_rating** memiliki rentang nilai antara **2 hingga 5**, dengan rata-rata rating sebesar **4,15**, yang menunjukkan bahwa sebagian besar buku dalam dataset memperoleh penilaian yang cukup baik dari pengguna.
+
+## Exploratory Data Analysis
+
+Setelah melalui tahap preprocessing data, langkah selanjutnya adalah melakukan **Exploratory Data Analysis (EDA)**. Tahap ini bertujuan untuk mengeksplorasi karakteristik data serta mengidentifikasi pola, distribusi, dan hubungan antar variabel dalam dataset. Melalui EDA, dapat diperoleh pemahaman awal mengenai struktur dan kecenderungan data sebelum dilakukan analisis lebih lanjut.
+
+### Distribusi harga buku
+
+Tujuannya untuk melihat sebaran harga buku dalam dataset.
+
+```{r}
+library(ggplot2)
+
+ggplot(novel, aes(x = price)) +
+  geom_histogram(bins = 30, fill = "steelblue") +
+  labs(title = "Distribusi Harga Buku",
+       x = "Harga Buku",
+       y = "Jumlah Buku")
+```
+
+Berdasarkan histogram distribusi harga buku, terlihat bahwa sebagian besar buku dalam dataset memiliki harga yang relatif rendah hingga menengah. Konsentrasi data terbesar berada pada rentang harga yang lebih rendah, yang menunjukkan bahwa mayoritas buku dijual dengan harga yang terjangkau.
+
+Distribusi harga buku juga menunjukkan pola **right-skewed** atau miring ke kanan, di mana sebagian besar data terkumpul pada nilai harga yang lebih kecil, sementara hanya sebagian kecil buku yang memiliki harga sangat tinggi. Selain itu, terlihat adanya beberapa nilai ekstrem dengan harga yang jauh lebih tinggi dibandingkan mayoritas buku dalam dataset.
+
+### Jumlah buku berdasarkan kategori
+
+```{r}
+ggplot(novel, aes(x = category)) +
+  geom_bar(fill = "darkgreen") +
+  labs(title = "Jumlah Buku Berdasarkan Kategori",
+       x = "Kategori Buku",
+       y = "Jumlah Buku") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+Grafik jumlah buku berdasarkan kategori menunjukkan bahwa distribusi kategori buku dalam dataset tidak merata. Beberapa kategori memiliki jumlah buku yang jauh lebih banyak dibandingkan kategori lainnya.
+
+Kategori seperti **Fiksi**, **Sastra**, dan **Fantasi** merupakan kategori dengan jumlah buku terbanyak dalam dataset. Hal ini menunjukkan bahwa koleksi buku dalam dataset didominasi oleh buku-buku dengan genre fiksi dan sastra.
+
+Di sisi lain, terdapat beberapa kategori dengan jumlah buku yang relatif sedikit, seperti kategori **Legenda, Mitos, Dongeng** dan **Muslim**. Variasi jumlah kategori ini menunjukkan bahwa meskipun terdapat kategori yang dominan, dataset tetap memiliki keberagaman jenis buku yang cukup luas.
+
+### Distribusi rating pengguna.
+
+```{r}
+ggplot(novel, aes(x = user_rating)) +
+  geom_bar(fill = "orange") +
+  labs(title = "Distribusi Rating Pengguna",
+       x = "Rating",
+       y = "Jumlah")
+```
+
+Grafik distribusi rating pengguna menunjukkan bahwa sebagian besar buku dalam dataset memperoleh rating yang relatif tinggi. Rating **4** merupakan nilai yang paling sering diberikan oleh pengguna, diikuti oleh rating **5**.
+
+Sementara itu, jumlah buku dengan rating yang lebih rendah seperti **2 dan 3** relatif lebih sedikit. Hal ini menunjukkan bahwa mayoritas buku dalam dataset mendapatkan penilaian yang baik dari pengguna, sehingga dapat disimpulkan bahwa tingkat kepuasan pengguna terhadap buku-buku dalam dataset cenderung tinggi.
+
+### Analisis hubungan antara jumlah halaman dan harga buku.
+
+```{r}
+ggplot(novel, aes(x = pages, y = price)) +
+  geom_point(alpha = 0.3) +
+  scale_y_continuous(labels = scales::comma) +
+  labs(title = "Hubungan Jumlah Halaman dan Harga Buku",
+       x = "Jumlah Halaman",
+       y = "Harga Buku")
+```
+
+Grafik hubungan antara jumlah halaman dan harga buku menunjukkan bahwa sebagian besar buku dengan jumlah halaman yang relatif sedikit hingga menengah memiliki harga yang lebih rendah. Titik-titik pada grafik terlihat terkonsentrasi pada area dengan jumlah halaman yang tidak terlalu besar dan harga yang relatif terjangkau.
+
+Selain itu, terdapat beberapa titik yang berada jauh dari kumpulan data utama yang menunjukkan adanya buku dengan jumlah halaman sangat besar atau harga yang jauh lebih tinggi dibandingkan buku lainnya. Hal ini menunjukkan adanya beberapa nilai ekstrem (outlier) dalam dataset.
