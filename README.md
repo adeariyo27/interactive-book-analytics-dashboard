@@ -43,25 +43,29 @@ Dasbor dirancang dalam empat halaman utama yang merangkum seluruh wawasan data:
 ## 📂 Struktur Repositori
 ```text
 interactive-book-analytics-dashboard/
-├── dashboard/                      # Skrip R untuk implementasi Dashboard 
+├── dashboard/                      # Skrip R untuk implementasi Dashboard
 │   ├── global.R        
 │   ├── ui.R 
-│   └── server.R    
+│   ├── server.R
+│   └── www/                        # Asset statis untuk Shiny (gambar, css, dll)
+│       └── no-cover.png
 │
-├── data_analysis/             # Skrip R untuk ETL & Eksplorasi Data
-│   └── ETL_process.R          
+├── data_analysis/                  # Skrip R untuk ETL & Eksplorasi Data
+│   ├── ETL_process.R
+│   ├── Preprocessing dan EDA Data Novel dan Buku.qmd
+│   └── Preprocessing dan EDA Data Novel dan Buku.html
 │
-├── database/                  # Skrip SQL untuk Skema & Analitik
-│   ├── table_schema_metadata.sql  # DDL (Create Table, PK, FK, Constraints)
-│   └── queries_dashboard.sql      # Kumpulan Raw Query (A1 s.d D4)
+├── database/                       # Skrip SQL untuk Skema & Analitik
+│   ├── table_schema_metadata.sql   # DDL (Create Table, PK, FK, Constraints)
+│   └── queries_dashboard.sql       # Kumpulan Raw Query (A1 s.d D4)
 │
-├── dataset/                   # Folder data mentah statis (di-gitignore)
+├── dataset/                        # Folder data mentah statis (di-gitignore)
 │   └── novel_rawdata.csv      
 │
-├── docs/                      # Dokumentasi & Desain Konseptual
+├── docs/                           # Dokumentasi & Desain Konseptual
 │   ├── ERD Schema.png         
 │   ├── ERD_schema_script.txt  
 │   ├── KPI Dashboard.pdf      
 │   └── Rancangan Dashboard.pdf
 │
-└── README.md                  # Dokumentasi proyek
+└── README.md                       # Dokumentasi proyek
