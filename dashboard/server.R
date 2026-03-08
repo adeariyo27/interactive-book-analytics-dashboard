@@ -13,8 +13,6 @@ server <- function(input, output, session){
     }
     if(input$bulan_filter != "Semua Bulan") {
       bulan_angka <- match(input$bulan_filter, month.name)
-      # month.name indexnya mulai dari 2 karena "Semua Bulan" ada di index 1, 
-      # jadi kita kurangi 1. (Index 2 "January" -> Bulan 1)
       bulan_angka <- match(input$bulan_filter, daftar_bulan) - 1 
       kondisi <- paste0(kondisi, " AND MONTH(review_date) = ", bulan_angka)
     }
@@ -147,7 +145,7 @@ server <- function(input, output, session){
             hovertemplate = "<b>%{y}</b><br>Jumlah Ulasan: %{x}<extra></extra>",
             marker=list(color = ~n,                  
                         colorscale = 'Greens',       
-                        reversescale = TRUE,         # [SOLUSI] Ubah ke TRUE agar nilai besar lebih pekat
+                        reversescale = TRUE,         
                         showscale = FALSE)) %>%      
       layout(xaxis = list(title = "Jumlah Ulasan", showgrid = FALSE),
              yaxis = list(title = "", categoryorder = "total ascending", showgrid = FALSE), 
@@ -155,25 +153,39 @@ server <- function(input, output, session){
   })
   
   output$top_books_landscape <- renderUI({
-    q <- sprintf("SELECT b.title AS judul, 
-                         COALESCE(NULLIF(b.cover_book, ''), 'no-cover.png') AS cover 
+   q <- sprintf("SELECT b.title AS judul, 
+                         COALESCE(NULLIF(b.cover_book, ''), 'no-cover.jpg') AS cover,
+                         COALESCE(a.author_name, 'Unknown') AS penulis,
+                         COALESCE(p.publisher_name, 'Unknown') AS penerbit,
+                         COALESCE(b.price, 0) AS harga,
+                         COALESCE(b.pages, 0) AS halaman,
+                         COALESCE(b.category, 'Unknown') AS genre
                   FROM tbl_books b 
+                  LEFT JOIN tbl_authors a ON b.author_id = a.author_id
+                  LEFT JOIN tbl_publishers p ON b.publisher_id = p.publisher_id
                   JOIN tbl_reviews r ON b.book_id = r.book_id 
                   WHERE %s 
-                  GROUP BY b.book_id, b.title, b.cover_book 
+                  GROUP BY b.book_id, b.title, b.cover_book, a.author_name, p.publisher_name, b.price, b.pages, b.category 
                   ORDER BY COUNT(r.review_id) DESC 
                   LIMIT 5;", sql_filter_r())
-    
     df <- dbGetQuery(koneksi_db, q)
-    
-    if(nrow(df) == 0) {
-      return(h4("Belum ada buku yang diulas pada periode ini.", style="text-align:center; color:gray; padding:20px;"))
-    }
+    if(nrow(df) == 0) return(h4("Belum ada buku yang diulas.", style="text-align:center; color:gray; padding:20px;"))
     
     div(class="book-row",
         lapply(1:nrow(df), function(i){
-          div(class="book-card",
-              tags$img(src=df$cover[i], class="book-img"),
+          # Struktur Flip Card
+          div(class="flip-card", onclick="this.classList.toggle('flipped')",
+              div(class="flip-card-inner",
+                  div(class="flip-card-front", tags$img(src=df$cover[i], class="book-img"), span(df$judul[i])),
+                  div(class="flip-card-back",
+                      h5(df$judul[i]),
+                      p(tags$b("Penulis: "), df$penulis[i]),
+                      p(tags$b("Penerbit: "), df$penerbit[i]),
+                      p(tags$b("Harga: "), paste0("Rp ", format(df$harga[i], big.mark=".", decimal.mark=","))),
+                      p(tags$b("Halaman: "), df$halaman[i]),
+                      p(tags$b("Genre: "), df$genre[i])
+                  )
+              )
           )
         }))
   })
@@ -273,39 +285,86 @@ server <- function(input, output, session){
       layout(margin = list(l = 10, r = 10, t = 10, b = 10))
   })
   
-  output$top10 <- renderUI({
-    q <- "SELECT b.title AS judul, COALESCE(NULLIF(b.cover_book, ''), 'no-cover.jpg') AS cover 
+  output$top5 <- renderUI({
+    # Menambahkan SELECT dan LEFT JOIN untuk data belakang kartu
+    q <- "SELECT b.title AS judul, 
+                 COALESCE(NULLIF(b.cover_book, ''), 'no-cover.jpg') AS cover,
+                 COALESCE(a.author_name, 'Unknown') AS penulis,
+                 COALESCE(p.publisher_name, 'Unknown') AS penerbit,
+                 COALESCE(b.price, 0) AS harga,
+                 COALESCE(b.pages, 0) AS halaman,
+                 COALESCE(b.category, 'Unknown') AS genre
           FROM tbl_books b 
+          LEFT JOIN tbl_authors a ON b.author_id = a.author_id
+          LEFT JOIN tbl_publishers p ON b.publisher_id = p.publisher_id
           JOIN tbl_reviews r ON b.book_id = r.book_id 
-          GROUP BY b.book_id, b.title, b.cover_book 
-          ORDER BY COUNT(r.review_id) DESC LIMIT 10;"
+          GROUP BY b.book_id, b.title, b.cover_book, a.author_name, p.publisher_name, b.price, b.pages, b.category 
+          ORDER BY COUNT(r.review_id) DESC LIMIT 5;"
     df <- dbGetQuery(koneksi_db, q)
+    
+    if(nrow(df) == 0) return(h4("Tidak ada data.", style="text-align:center; padding:20px;"))
     
     div(class="book-row",
         lapply(1:nrow(df), function(i){
-          div(class="book-card", 
-              tags$img(src=df$cover[i], class="book-img"), 
-              span(df$judul[i], 
-                   style="font-size: 14px; font-weight: 900 !important; text-transform: uppercase; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 10px; color: #000;")
+          # Struktur Flip Card
+          div(class="flip-card", onclick="this.classList.toggle('flipped')",
+              div(class="flip-card-inner",
+                  div(class="flip-card-front", 
+                      tags$img(src=df$cover[i], class="book-img"), 
+                      span(df$judul[i], 
+                           style="font-size: 14px; font-weight: 900 !important; text-transform: uppercase; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 10px; color: #000;")
+                  ),
+                  div(class="flip-card-back",
+                      h5(df$judul[i]),
+                      p(tags$b("Penulis: "), df$penulis[i]),
+                      p(tags$b("Penerbit: "), df$penerbit[i]),
+                      p(tags$b("Harga: "), paste0("Rp ", format(df$harga[i], big.mark=".", decimal.mark=","))),
+                      p(tags$b("Halaman: "), df$halaman[i]),
+                      p(tags$b("Genre: "), df$genre[i])
+                  )
+              )
           )
         }))
   })
   
   output$underrated <- renderUI({
-    q <- "SELECT b.title AS judul, COALESCE(NULLIF(b.cover_book, ''), 'no-cover.jpg') AS cover 
+    q <- "SELECT b.title AS judul, 
+                 COALESCE(NULLIF(b.cover_book, ''), 'no-cover.jpg') AS cover,
+                 COALESCE(a.author_name, 'Unknown') AS penulis,
+                 COALESCE(p.publisher_name, 'Unknown') AS penerbit,
+                 COALESCE(b.price, 0) AS harga,
+                 COALESCE(b.pages, 0) AS halaman,
+                 COALESCE(b.category, 'Unknown') AS genre
           FROM tbl_books b 
+          LEFT JOIN tbl_authors a ON b.author_id = a.author_id
+          LEFT JOIN tbl_publishers p ON b.publisher_id = p.publisher_id
           JOIN tbl_reviews r ON b.book_id = r.book_id 
-          GROUP BY b.book_id, b.title, b.cover_book 
+          GROUP BY b.book_id, b.title, b.cover_book, a.author_name, p.publisher_name, b.price, b.pages, b.category 
           HAVING AVG(r.rating) >= 4.5 AND COUNT(r.review_id) BETWEEN 20 AND 100 
           ORDER BY AVG(r.rating) DESC, COUNT(r.review_id) DESC LIMIT 5;"
     df <- dbGetQuery(koneksi_db, q)
     
+    if(nrow(df) == 0) return(h4("Belum ada buku potensial yang memenuhi kriteria.", style="text-align:center; padding:20px;"))
+    
     div(class="book-row",
         lapply(1:nrow(df), function(i){
-          div(class="book-card", 
-              tags$img(src=df$cover[i], class="book-img"), 
-              span(df$judul[i], 
-                   style="font-size: 14px; font-weight: 900 !important; text-transform: uppercase; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 10px; color: #000;")
+          # Struktur Flip Card
+          div(class="flip-card", onclick="this.classList.toggle('flipped')",
+              div(class="flip-card-inner",
+                  div(class="flip-card-front", 
+                      tags$img(src=df$cover[i], class="book-img"), 
+                      span(df$judul[i], 
+                           style="font-size: 14px; font-weight: 900 !important; text-transform: uppercase; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 10px; color: #000;")
+                  ),
+                  div(class="flip-card-back",
+                      h5(df$judul[i]),
+                      p(tags$b("Penulis: "), df$penulis[i]),
+                      p(tags$b("Penerbit: "), df$penerbit[i]),
+                      p(tags$b("Harga: "), paste0("Rp ", format(df$harga[i], big.mark=".", decimal.mark=","))),
+                      p(tags$b("Halaman: "), df$halaman[i]),
+                      p(tags$b("Genre: "), df$genre[i])
+                  )
+              )
           )
         }))
   })
@@ -398,29 +457,48 @@ server <- function(input, output, session){
              margin = list(l = 220, t = 10, b = 30)) 
   })
   
-  output$most_popular_author <- renderPlotly({
-    q <- "SELECT COALESCE(a.author_name, 'Unknown') AS penulis, COUNT(r.review_id) AS n, ROUND(AVG(r.rating), 2) AS avg_rating 
+  output$most_popular_author <- renderUI({
+    q <- "SELECT COALESCE(a.author_name, 'Unknown') AS penulis, 
+                 COALESCE(a.author_profile, '') AS foto,
+                 COUNT(r.review_id) AS n, 
+                 ROUND(AVG(r.rating), 2) AS avg_rating,
+                 COUNT(DISTINCT b.book_id) AS jml_buku
           FROM tbl_authors a 
           JOIN tbl_books b ON a.author_id = b.author_id 
           JOIN tbl_reviews r ON b.book_id = r.book_id 
-          GROUP BY a.author_id, a.author_name 
-          ORDER BY n DESC LIMIT 10;"
+          GROUP BY a.author_id, a.author_name, a.author_profile 
+          ORDER BY n DESC LIMIT 5;"
     df <- dbGetQuery(koneksi_db, q)
-    if(nrow(df) == 0) return(plotly_empty() %>% layout(title = "Tidak ada data"))
     
-    plot_ly(df, x = ~n, y = ~penulis, type = "bar", orientation = "h",
-            text = ~paste(format(n, big.mark=","), "Ulasan"), 
-            textposition = 'none',
-            hovertext = ~paste(
-              "<b>", penulis, "</b>",
-              "<br>Rating: ⭐ ", avg_rating,
-              "<br>Jumlah Ulasan: ", format(n, big.mark=",")
-            ),
-            hoverinfo = "text",
-            marker = list(color = ~n, colorscale = 'Blues', reversescale = TRUE, showscale = FALSE)) %>%
-      layout(xaxis = list(title = "Jumlah Ulasan", showgrid = FALSE),
-             yaxis = list(title = "", categoryorder = "total ascending", showgrid = FALSE),
-             margin = list(l = 150, t = 10, b = 30))
+    if(nrow(df) == 0) return(h4("Tidak ada data.", style="text-align:center; padding:20px;"))
+    
+    df$foto_final <- sapply(1:nrow(df), function(i) {
+      if(df$foto[i] == "" || is.na(df$foto[i])) {
+        paste0("https://ui-avatars.com/api/?name=", gsub(" ", "+", df$penulis[i]), "&background=2c3e50&color=fff&size=200&bold=true")
+      } else {
+        df$foto[i]
+      }
+    })
+    
+    div(class="book-row",
+        lapply(1:nrow(df), function(i){
+          div(class="flip-card", onclick="this.classList.toggle('flipped')",
+              div(class="flip-card-inner",
+                  div(class="flip-card-front", style="justify-content: center;",
+                      tags$img(src=df$foto_final[i], 
+                               style="width: 140px; height: 140px; object-fit: cover; border-radius: 50%; box-shadow: 0 4px 8px rgba(0,0,0,0.1);"), 
+                      span(df$penulis[i], 
+                           style="font-size: 15px; font-weight: 900 !important; text-transform: uppercase; text-align: center; margin-top: 20px; color: #000;")
+                  ),
+                  div(class="flip-card-back",
+                      h5(df$penulis[i]),
+                      p(tags$b("Rating: "), "⭐ ", df$avg_rating[i]),
+                      p(tags$b("Jumlah Ulasan: "), format(df$n[i], big.mark=",", scientific=FALSE)),
+                      p(tags$b("Jumlah Buku: "), df$jml_buku[i])
+                  )
+              )
+          )
+        }))
   })
   
   output$most_productive_author <- renderPlotly({
