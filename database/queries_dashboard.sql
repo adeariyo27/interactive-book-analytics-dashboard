@@ -141,6 +141,15 @@ GROUP BY a.author_id, a.author_name, p.publisher_id, p.publisher_name
 HAVING Total_Kolaborasi_Buku > 1
 ORDER BY Total_Kolaborasi_Buku DESC;
 
+-- C5. Top 5 Penulis dengan Buku terbanyak
+SELECT COALESCE(a.author_name, 'Unknown') AS penulis, 
+       COUNT(b.book_id) AS jml_buku
+FROM tbl_authors a
+JOIN tbl_books b ON a.author_id = b.author_id
+GROUP BY a.author_id, a.author_name
+ORDER BY jml_buku DESC 
+LIMIT 5;
+
 
 -- ====================================================================================
 -- BAGIAN D: ANALISIS PERILAKU DAN KARAKTERISTIK PENGGUNA
