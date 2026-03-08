@@ -6,7 +6,7 @@
 ---
 
 ## 📖 Latar Belakang
-Proyek ini bertujuan untuk merancang dan mengimplementasikan dasbor analitik interaktif berbasis RShiny. Berangkat dari dataset mentah berupa log transaksi ulasan buku e-commerce (format *flat file* tunggal), kami melakukan transformasi arsitektur data secara menyeluruh. Proses ini mencakup pembersihan data, pemodelan basis data relasional, hingga penyajian wawasan bisnis untuk mendukung pengambilan keputusan strategis.
+Proyek ini bertujuan untuk merancang dan mengimplementasikan dasbor analitik interaktif berbasis RShiny. Bersumber dari dataset mentah berupa log transaksi ulasan buku e-commerce (format *flat file* tunggal), kami melakukan transformasi arsitektur data secara menyeluruh. Proses ini mencakup pembersihan data, pemodelan basis data relasional, hingga penyajian *insight* bisnis untuk mendukung pengambilan keputusan strategis.
 
 ## 👥 Tim Pengembang dan Peran
 Proyek kolaboratif ini dikerjakan oleh 4 peran utama dengan spesialisasi masing-masing:
@@ -23,7 +23,7 @@ Proyek kolaboratif ini dikerjakan oleh 4 peran utama dengan spesialisasi masing-
 * **Fase 3: Query Optimization:** <br>
    Penyusunan sintaks SQL murni dengan memanfaatkan `LEFT JOIN` dan penanganan *Missing Values* (`COALESCE`) untuk menjaga integritas perhitungan analitik. <br>
 * **Fase 4: Dashboard Implementation:** <br>
-   Visualisasi wawasan data melalui 4 halaman interaktif di RShiny. 
+   Visualisasi *insight* data melalui 4 halaman interaktif di RShiny. 
 
 ## 📈 Fitur Utama Dasbor
 Dasbor dirancang dalam empat halaman utama yang merangkum seluruh wawasan data:
@@ -32,6 +32,30 @@ Dasbor dirancang dalam empat halaman utama yang merangkum seluruh wawasan data:
 * **B. Analisis Performa Buku dan Genre:** Menyajikan peringkat 10 buku terpopuler, evaluasi genre, analisis korelasi harga/halaman, dan pemetaan buku potensial (*underrated*).
 * **C. Analisis Penulis dan Penerbit:** Mengevaluasi metrik kualitas entitas kreator melalui ulasan terbanyak dan tingkat konsistensi penilaian, serta pasangan kolaborasi penulis-penerbit.
 * **D. Analisis Perilaku Pengguna:** Membedah demografi (usia, gender, kota asal) dan distribusi pola penilaian pengguna aktif.
+
+## 📸 Cuplikan Dasbor (Dashboard Previews)
+
+### 1. Menu Ringkasan
+![Menu Ringkasan](docs/screenshot/overview-page.png)
+> Menampilkan metrik utama performa buku dan tren ulasan secara keseluruhan.
+
+### 2. Menu Buku
+![Menu Buku](docs/screenshot/books-page.png)
+> Menyajikan analisis mendalam terkait korelasi metrik buku serta daftar buku terpopuler dan *underrated* yang dibalut dalam efek kartu *3D flip* interaktif.
+
+### 3. Menu Penulis
+![Menu Penulis](docs/screenshot/authors-page.png)
+> Membedah kualitas dan produktivitas penulis maupun penerbit, lengkap dengan *profile card* dinamis untuk penulis dengan ulasan terbanyak.
+
+### 4. Menu Pengguna
+![Menu Pengguna](docs/screenshot/users-page.png)
+> Memvisualisasikan demografi dan pola perilaku pengguna aktif berdasarkan usia, gender, dan lokasi domisili melalui grafik.
+
+### 5. Menu Tentang Kami
+![Menu Tim](docs/screenshot/team-page.png)
+> Menampilkan profil ilustratif dari tim pengembang di balik arsitektur data dan pembuatan dasbor analitik ini.
+
+---
 
 ## 🛠️ Teknologi yang Digunakan
 * **Database:** MySQL/MariaDB
@@ -48,7 +72,8 @@ interactive-book-analytics-dashboard/
 │   ├── ui.R 
 │   ├── server.R
 │   └── www/                        # Asset statis untuk Shiny (gambar, css, dll)
-│       └── no-cover.png
+│       ├── no-cover.png
+│       └── hero-banner.jpg        
 │
 ├── data_analysis/                  # Skrip R untuk ETL & Eksplorasi Data
 │   ├── ETL_process.R
@@ -57,12 +82,18 @@ interactive-book-analytics-dashboard/
 │
 ├── database/                       # Skrip SQL untuk Skema & Analitik
 │   ├── table_schema_metadata.sql   # DDL (Create Table, PK, FK, Constraints)
-│   └── queries_dashboard.sql       # Kumpulan Raw Query (A1 s.d D4)
+│   └── queries_dashboard.sql       # Kumpulan Raw Query untuk Dashboard
 │
-├── dataset/                        # Folder data mentah statis (di-gitignore)
+├── dataset/                        # Raw Data
 │   └── novel_rawdata.csv      
 │
-├── docs/                           # Dokumentasi & Desain Konseptual
+├── docs/                           # Dokumentasi, Desain Konseptual, & Screenshot tampilan dashboard
+│   └── screenshot/                        
+│       ├── authors-page.png
+│       ├── books-page.png
+│       ├── overview-page.png
+│       ├── team-page.png
+│       └── users-page.jpg      
 │   ├── ERD Schema.png         
 │   ├── ERD_schema_script.txt  
 │   ├── KPI Dashboard.pdf      
